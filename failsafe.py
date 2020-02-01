@@ -1,5 +1,6 @@
 import os
 import datetime
+import fsparser
 
 sel_log = None
 log_list = []
@@ -11,7 +12,7 @@ def failsafe():
     print('Ahoy captain! What can I do for you today?')
     while is_running:
         prompt = input()
-        commands = ["help", "quit", "select", "list", "print"]
+        commands = ["help", "quit", "select", "list", "print", "parse"]
 
         if prompt in commands:
             if prompt == "quit":
@@ -24,9 +25,10 @@ def failsafe():
                 listlogs()
             elif prompt == "print":
                 printlog()
+            elif prompt == "parse":
+                parselog()
         else:
-            print("""I'm sorry captain, but I don't understand! 
-            *Please input a valid command...* or \"help\" if you need a list of them!""")
+            print("""I'm sorry captain, but I don't understand!\n*Please input a valid command...* or \"help\" if you need a list of them!""")
 
         if is_running:
             print("What else can I help you with today?")
@@ -59,7 +61,7 @@ def selectlog():
         if 0 <= index and index < len(log_list):
             sel_log = log_list[index]
             has_valid_index = True
-            print("Selected log " + str(index + 1) + ": " + sel_log.name)
+            print("Selected log " + str(index + 1) + ": " + sel_log.name + "\n")
         else:
             print("Invalid index. Select an index from 1 to " + str(len(log_list)))
 
@@ -71,12 +73,24 @@ def printlog():
         selectlog()
 
     with open(sel_log.path) as log:
+        index = 1
         for line in log:
-            print(line, end="")
+            print(str(index) + " " + line, end="")
+            index+=1
         log.close()
         print("\nEND OF LOG\n")
 
+def parselog():
+    global sel_log
+    if sel_log == None:
+        print("Captain, it appears that you haven't yet selected a log. *I suggest you do that*")
+        listlogs()
+        selectlog()
+    
+    fsparser.parse_from_log(sel_log)
+
 def main():
+    fsparser.add_subsystems()
     failsafe()
 
 if __name__ == "__main__":
