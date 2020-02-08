@@ -43,15 +43,19 @@ def failsafe():
 
 def listlogs():
     with os.scandir(logs_dir) as dir:
-        index = 0
         log_list.clear()
+
         for entry in dir:
+            log_list.append(entry)
+        log_list.sort(key=lambda entry: entry.stat().st_mtime, reverse=True)
+
+        index = 0
+        for entry in log_list:
             if entry.is_file():
-                index += 1
-                log_list.append(entry)
-                filetime = datetime.datetime.fromtimestamp(entry.stat().st_mtime)
-                datespace = 85 - len(entry.name)
-                print(str(index) + "| " + entry.name + filetime.isoformat(' ', timespec='seconds').rjust(datespace))
+                    index += 1
+                    filetime = datetime.datetime.fromtimestamp(entry.stat().st_mtime)
+                    datespace = 85 - len(entry.name)
+                    print((str(index) + "|").rjust(4, ' ') + " " + entry.name + filetime.isoformat(' ', timespec='seconds').rjust(datespace))
         dir.close()
 
 def selectlog():
