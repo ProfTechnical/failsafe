@@ -1,6 +1,6 @@
 import os
 import re
-from fsparser import Subsystem
+from subsystem import Subsystem
 
 subsystems = []
 
@@ -47,7 +47,6 @@ def print_summary():
             error += error_count
             error_s += 1
 
-    
     print("Summary of Log:\n")
     print(str(debug) + " Debug Messages across " + str(debug_s) + " systems")
     print(str(info) + " Info Messages across " + str(info_s) + " systems")
