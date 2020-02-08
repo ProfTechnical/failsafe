@@ -5,6 +5,7 @@ sel_log = None
 subsystems = []
 
 def add_subsystems():
+    subsystems.append(Subsystem("System"))
     subsystems.append(Subsystem("Drive"))
     subsystems.append(Subsystem("Limelight"))
 
@@ -95,7 +96,7 @@ def print_summary():
 def print_system(system_name):
     subsystem = None
     for system in subsystems:
-        if system_name == system.name:
+        if system_name.lower() == system.name.lower():
             subsystem = system
             break
     
