@@ -1,6 +1,7 @@
 import os
 import datetime
 import fsparser
+import fsanalyzer
 
 sel_log = None
 log_list = []
@@ -97,9 +98,9 @@ def parselog(args):
     fsparser.parse_from_log(sel_log)
     if args != []:
         system_name = args[0]
-        fsparser.print_system(system_name)
+        fsanalyzer.print_system(system_name)
     else:
-        fsparser.print_summary()
+        fsanalyzer.print_summary()
 
 def main():
     fsparser.add_subsystems()
