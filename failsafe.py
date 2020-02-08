@@ -75,10 +75,7 @@ def selectlog():
 
 def printlog():
     global sel_log
-    if sel_log == None:
-        print("Captain, it appears that you haven't yet selected a log. *I suggest you do that*")
-        listlogs()
-        selectlog()
+    check_and_select()
 
     with open(sel_log.path) as log:
         index = 1
@@ -90,10 +87,7 @@ def printlog():
 
 def parselog(args):
     global sel_log
-    if sel_log == None:
-        print("Captain, it appears that you haven't yet selected a log. *I suggest you do that*")
-        listlogs()
-        selectlog()
+    check_and_select()
     
     fsparser.parse_from_log(sel_log)
     if args != []:
@@ -101,6 +95,13 @@ def parselog(args):
         fsanalyzer.print_system(system_name)
     else:
         fsanalyzer.print_summary()
+
+def check_and_select():
+    global sel_log
+    if sel_log == None:
+        print("Captain, it appears that you haven't yet selected a log. *I suggest you do that*")
+        listlogs()
+        selectlog()
 
 def main():
     fsparser.add_subsystems()
