@@ -1,6 +1,7 @@
 import os
 import re
 from subsystem import Subsystem
+import fsparser
 
 subsystems = []
 
@@ -14,6 +15,21 @@ def has_subsystems():
         print("Captain, I don't have any subsystems to analyze! Please call the parser!")
         return False
     return True
+
+def subsystem_namecheck(system_name):
+    subsystem = None
+    for system in subsystems:
+        if system_name.lower() == system.name.lower():
+            subsystem = system
+            break
+    
+    if subsystem == None:
+        print("Captain, I don't have the \"" + system_name + "\" subsystem stored in my databases!\n")
+        print("I do have these ones which you might be looking for: ")
+        for system in subsystems:
+            print(system.name)
+        print()
+    return subsystem
 
 def print_summary():
     if not has_subsystems():
@@ -57,24 +73,16 @@ def print_system(system_name):
     if not has_subsystems():
         return
 
-    subsystem = None
-    for system in subsystems:
-        if system_name.lower() == system.name.lower():
-            subsystem = system
-            break
-    
-    if subsystem == None:
-        print("Captain, I don't have the \"" + system_name + "\" subsystem stored in my databases!\n")
-        print("I do have these ones which you might be looking for: ")
-        for system in subsystems:
-            print(system.name)
-        print()
+    system = subsystem_namecheck(system_name)
+    if system == None:
         return
     
-    debug_count = len(system.messages[Subsystem.debug_level])
-    info_count = len(system.messages[Subsystem.info_level])
-    warning_count = len(system.messages[Subsystem.warning_level])
-    error_count = len(system.messages[Subsystem.error_level])
+    messages = system.get_messages()
+    
+    debug_count = len(messages[Subsystem.debug_level])
+    info_count = len(messages[Subsystem.info_level])
+    warning_count = len(messages[Subsystem.warning_level])
+    error_count = len(messages[Subsystem.error_level])
 
     debug_lines = ""
     info_lines = ""
@@ -83,23 +91,23 @@ def print_system(system_name):
 
     if debug_count > 0:
         debug_lines = " at lines: "
-        for line in system.messages[Subsystem.debug_level]:
-            debug_lines += str(line) + ", "
+        for line in messages[Subsystem.debug_level]:
+            debug_lines += str(line[1]) + ", "
         debug_lines = debug_lines.rstrip(', ')
     if info_count > 0:
         info_lines = " at lines: "
-        for line in system.messages[Subsystem.info_level]:
-            info_lines += str(line) + ", "
+        for line in messages[Subsystem.info_level]:
+            info_lines += str(line[1]) + ", "
         info_lines = info_lines.rstrip(', ')
     if warning_count > 0:
         warning_lines = " at lines: "
-        for line in system.messages[Subsystem.warning_level]:
-            warning_lines += str(line) + ", "
+        for line in messages[Subsystem.warning_level]:
+            warning_lines += str(line[1]) + ", "
         warning_lines = warning_lines.rstrip(', ')
     if error_count > 0:
         error_lines = " at lines: "
-        for line in system.messages[Subsystem.error_level]:
-            error_lines += str(line) + ", "
+        for line in messages[Subsystem.error_level]:
+            error_lines += str(line[1]) + ", "
         error_lines = error_lines.rstrip(', ')
 
     print("Summary of " + system_name + "\n")
@@ -118,19 +126,36 @@ def find(args):
     msg_levels = ["debug", "info", "warning", "error"]
     level = args[0].lower()
 
-    if not level in msg_levels:
+    if level in msg_levels:
+        if level == "debug":
+            level = Subsystem.debug_level
+        elif level == "info":
+            level = Subsystem.info_level
+        elif level == "warning":
+            level = Subsystem.warning_level
+        else:
+            level = Subsystem.error_level
+    else:
         print("Captain, there isn't a message level of: " + level)
         print("Use \"debug\", \"info\", \"warning\", or \"error\"")
         return
     
-    name = None
+    system_name = None
     if args[1] != None:
-        name = args[1].lower()
+        system_name = args[1].lower()
     
-    if name != None:
-        #TODO Subsystem check, then run search function for subsystem
-        pass
+        system = None
+        if system_name != None:
+            #TODO Subsystem check, then run search function for subsystem
+            system = subsystem_namecheck(system_name)
+            if system == None:
+                return
+
+        messages = system.get_messages()
+        for line in messages[level]:
+            print(str(line[1]) + " " + str(line[0]).rstrip("\n"))
+        print()
+
     else:
         #TODO Run search function across entire log
         pass
-

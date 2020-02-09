@@ -20,7 +20,7 @@ def failsafe():
             del split[0]
             args = split
         
-        commands = ["help", "quit", "select", "list", "print", "parse"]
+        commands = ["help", "quit", "select", "list", "print", "parse", "find"]
 
         if command in commands:
             if command == "quit":
@@ -35,6 +35,8 @@ def failsafe():
                 printlog()
             elif command == "parse":
                 parselog(args)
+            elif command == "find":
+                findinlog(args)
         else:
             print("""I'm sorry captain, but I don't understand!\n*Please input a valid command...* or \"help\" if you need a list of them!""")
 
@@ -99,6 +101,13 @@ def parselog(args):
         fsanalyzer.print_system(system_name)
     else:
         fsanalyzer.print_summary()
+
+def findinlog(args):
+    global sel_log
+    check_and_select()
+
+    fsparser.parse_from_log(sel_log)
+    fsanalyzer.find(args)
 
 def check_and_select():
     global sel_log
