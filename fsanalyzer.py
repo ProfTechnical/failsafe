@@ -140,22 +140,27 @@ def find(args):
         print("Use \"debug\", \"info\", \"warning\", or \"error\"")
         return
     
-    system_name = None
-    if args[1] != None:
-        system_name = args[1].lower()
-    
-        system = None
-        if system_name != None:
-            #TODO Subsystem check, then run search function for subsystem
-            system = subsystem_namecheck(system_name)
-            if system == None:
-                return
+    if len(args) > 1:
+        system_name = None
+        if args[1] != None:
+            system_name = args[1].lower()
+        
+            system = None
+            if system_name != None:
+                #TODO Subsystem check, then run search function for subsystem
+                system = subsystem_namecheck(system_name)
+                if system == None:
+                    return
 
+            messages = system.get_messages()
+            for line in messages[level]:
+                print(str(line[1]) + " " + str(line[0]).rstrip("\n"))
+            print()
+            return
+
+    for system in subsystems:
         messages = system.get_messages()
         for line in messages[level]:
             print(str(line[1]) + " " + str(line[0]).rstrip("\n"))
-        print()
-
-    else:
-        #TODO Run search function across entire log
-        pass
+    print()
+    pass
