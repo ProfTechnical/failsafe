@@ -1,6 +1,7 @@
 import os
 import datetime
 import fsparser
+import fsanalyzer
 
 sel_log = None
 log_list = []
@@ -19,7 +20,7 @@ def failsafe():
             del split[0]
             args = split
         
-        commands = ["help", "quit", "select", "list", "print", "parse"]
+        commands = ["help", "quit", "select", "list", "print", "parse", "find"]
 
         if command in commands:
             if command == "quit":
@@ -34,6 +35,8 @@ def failsafe():
                 printlog()
             elif command == "parse":
                 parselog(args)
+            elif command == "find":
+                findinlog(args)
         else:
             print("""I'm sorry captain, but I don't understand!\n*Please input a valid command...* or \"help\" if you need a list of them!""")
 
@@ -42,15 +45,19 @@ def failsafe():
 
 def listlogs():
     with os.scandir(logs_dir) as dir:
-        index = 0
         log_list.clear()
+
         for entry in dir:
+            log_list.append(entry)
+        log_list.sort(key=lambda entry: entry.stat().st_mtime, reverse=True)
+
+        index = 0
+        for entry in log_list:
             if entry.is_file():
-                index += 1
-                log_list.append(entry)
-                filetime = datetime.datetime.fromtimestamp(entry.stat().st_mtime)
-                datespace = 85 - len(entry.name)
-                print(str(index) + "| " + entry.name + filetime.isoformat(' ', timespec='seconds').rjust(datespace))
+                    index += 1
+                    filetime = datetime.datetime.fromtimestamp(entry.stat().st_mtime)
+                    datespace = 85 - len(entry.name)
+                    print((str(index) + "|").rjust(4, ' ') + " " + entry.name + filetime.isoformat(' ', timespec='seconds').rjust(datespace))
         dir.close()
 
 def selectlog():
@@ -74,10 +81,7 @@ def selectlog():
 
 def printlog():
     global sel_log
-    if sel_log == None:
-        print("Captain, it appears that you haven't yet selected a log. *I suggest you do that*")
-        listlogs()
-        selectlog()
+    check_and_select()
 
     with open(sel_log.path) as log:
         index = 1
@@ -89,17 +93,28 @@ def printlog():
 
 def parselog(args):
     global sel_log
-    if sel_log == None:
-        print("Captain, it appears that you haven't yet selected a log. *I suggest you do that*")
-        listlogs()
-        selectlog()
+    check_and_select()
     
     fsparser.parse_from_log(sel_log)
     if args != []:
         system_name = args[0]
-        fsparser.print_system(system_name)
+        fsanalyzer.print_system(system_name)
     else:
-        fsparser.print_summary()
+        fsanalyzer.print_summary()
+
+def findinlog(args):
+    global sel_log
+    check_and_select()
+
+    fsparser.parse_from_log(sel_log)
+    fsanalyzer.find(args)
+
+def check_and_select():
+    global sel_log
+    if sel_log == None:
+        print("Captain, it appears that you haven't yet selected a log. *I suggest you do that*")
+        listlogs()
+        selectlog()
 
 def main():
     fsparser.add_subsystems()
